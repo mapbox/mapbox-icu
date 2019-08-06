@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 project(MAPBOX_ICU LANGUAGES CXX C)
 
+# Required to avoid warnings when setting visibility
+cmake_policy(SET CMP0063 NEW)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
+
 set(ICU_COMPILE_DEFINITIONS
     UCONFIG_NO_BREAK_ITERATION=1
     UCONFIG_NO_LEGACY_CONVERSION=1
@@ -452,7 +457,7 @@ add_library(icudata STATIC
 )
 
 target_include_directories(icudata PRIVATE
-    ${CMAKE_SOURCE_DIR}/deps/icu4c/source/common
+    ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/common
 )
 
 target_compile_definitions(icudata PRIVATE
