@@ -447,6 +447,18 @@ target_include_directories(icu-i18n PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/i18n
 )
 
+add_library(icudata STATIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/stubdata/stubdata.cpp
+)
+
+target_include_directories(icudata PRIVATE
+    ${CMAKE_SOURCE_DIR}/deps/icu4c/source/common
+)
+
+target_compile_definitions(icudata PRIVATE
+    ${ICU_COMPILE_DEFINITIONS}
+)
+
 target_compile_definitions(icu-uc PRIVATE
     U_COMMON_IMPLEMENTATION=1
     ${ICU_COMPILE_DEFINITIONS}
@@ -467,4 +479,5 @@ target_include_directories(icu SYSTEM INTERFACE
 target_link_libraries(icu INTERFACE
     icu-i18n
     icu-uc
+    icudata
 )
