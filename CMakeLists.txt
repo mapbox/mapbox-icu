@@ -447,6 +447,11 @@ target_compile_definitions(icui18n PRIVATE
     ${ICU_COMPILE_DEFINITIONS}
 )
 
+target_compile_options(icui18n PRIVATE
+    -Wno-error
+    -Wno-shorten-64-to-32
+)
+
 target_include_directories(icui18n PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/common
     ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/i18n
@@ -455,6 +460,11 @@ target_include_directories(icui18n PRIVATE
 target_compile_definitions(icuuc PRIVATE
     U_COMMON_IMPLEMENTATION=1
     ${ICU_COMPILE_DEFINITIONS}
+)
+
+target_compile_options(icuuc PRIVATE
+    -Wno-error
+    -Wno-shorten-64-to-32
 )
 
 target_include_directories(icuuc PRIVATE
