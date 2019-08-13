@@ -462,41 +462,29 @@ target_include_directories(icuuc PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/i18n
 )
 
-add_library(icu INTERFACE)
-
-target_include_directories(icu SYSTEM INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/common
-    ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/i18n
-)
-
-target_link_libraries(icu INTERFACE
-    icui18n
-    icuuc
-)
-
 find_package(ICU 60.2)
 if (ICU_PKGDATA_EXECUTABLE)
     add_custom_target(icudata-misc ALL
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/icudt63l
-        COMMAND ${ICU_ICUPKG_EXECUTABLE} -tl in/unames.icu ${CMAKE_BINARY_DIR}/icudt63l/unames.icu
-        COMMAND ${ICU_GENCNVAL_EXECUTABLE} -d ${CMAKE_BINARY_DIR}/icudt63l mappings/convrtrs.txt
-        COMMAND ${ICU_ICUPKG_EXECUTABLE} -tl in/coll/ucadata-unihan.icu ${CMAKE_BINARY_DIR}/icudt63l/coll/ucadata.icu
-        COMMAND ${ICU_ICUPKG_EXECUTABLE} -tl in/nfkc.nrm ${CMAKE_BINARY_DIR}/icudt63l/nfkc.nrm
-        COMMAND ${ICU_ICUPKG_EXECUTABLE} -tl in/nfkc_cf.nrm ${CMAKE_BINARY_DIR}/icudt63l/nfkc_cf.nrm
-        COMMAND ${ICU_ICUPKG_EXECUTABLE} -tl in/uts46.nrm ${CMAKE_BINARY_DIR}/icudt63l/uts46.nrm
-        COMMAND ${ICU_MAKECONV_EXECUTABLE} -c -d ${CMAKE_BINARY_DIR}/icudt63l mappings/ibm-37_P100-1995.ucm
-        COMMAND ${ICU_MAKECONV_EXECUTABLE} -c -d ${CMAKE_BINARY_DIR}/icudt63l mappings/ibm-1047_P100-1995.ucm
-        COMMAND ${ICU_GENRB_EXECUTABLE} -k -q -i ${CMAKE_BINARY_DIR}/icudt63l -s misc -d ${CMAKE_BINARY_DIR}/icudt63l numberingSystems.txt
-        COMMAND ${ICU_GENRB_EXECUTABLE} -k -q -i ${CMAKE_BINARY_DIR}/icudt63l -s misc -d ${CMAKE_BINARY_DIR}/icudt63l icuver.txt
-        COMMAND ${ICU_GENRB_EXECUTABLE} -k -q -i ${CMAKE_BINARY_DIR}/icudt63l -s misc -d ${CMAKE_BINARY_DIR}/icudt63l icustd.txt
+        COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/icudt63l
+        COMMAND ${ICU_ICUPKG_EXECUTABLE} -tl in/unames.icu ${CMAKE_CURRENT_BINARY_DIR}/icudt63l/unames.icu
+        COMMAND ${ICU_GENCNVAL_EXECUTABLE} -d ${CMAKE_CURRENT_BINARY_DIR}/icudt63l mappings/convrtrs.txt
+        COMMAND ${ICU_ICUPKG_EXECUTABLE} -tl in/coll/ucadata-unihan.icu ${CMAKE_CURRENT_BINARY_DIR}/icudt63l/coll/ucadata.icu
+        COMMAND ${ICU_ICUPKG_EXECUTABLE} -tl in/nfkc.nrm ${CMAKE_CURRENT_BINARY_DIR}/icudt63l/nfkc.nrm
+        COMMAND ${ICU_ICUPKG_EXECUTABLE} -tl in/nfkc_cf.nrm ${CMAKE_CURRENT_BINARY_DIR}/icudt63l/nfkc_cf.nrm
+        COMMAND ${ICU_ICUPKG_EXECUTABLE} -tl in/uts46.nrm ${CMAKE_CURRENT_BINARY_DIR}/icudt63l/uts46.nrm
+        COMMAND ${ICU_MAKECONV_EXECUTABLE} -c -d ${CMAKE_CURRENT_BINARY_DIR}/icudt63l mappings/ibm-37_P100-1995.ucm
+        COMMAND ${ICU_MAKECONV_EXECUTABLE} -c -d ${CMAKE_CURRENT_BINARY_DIR}/icudt63l mappings/ibm-1047_P100-1995.ucm
+        COMMAND ${ICU_GENRB_EXECUTABLE} -k -q -i ${CMAKE_CURRENT_BINARY_DIR}/icudt63l -s misc -d ${CMAKE_CURRENT_BINARY_DIR}/icudt63l numberingSystems.txt
+        COMMAND ${ICU_GENRB_EXECUTABLE} -k -q -i ${CMAKE_CURRENT_BINARY_DIR}/icudt63l -s misc -d ${CMAKE_CURRENT_BINARY_DIR}/icudt63l icuver.txt
+        COMMAND ${ICU_GENRB_EXECUTABLE} -k -q -i ${CMAKE_CURRENT_BINARY_DIR}/icudt63l -s misc -d ${CMAKE_CURRENT_BINARY_DIR}/icudt63l icustd.txt
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/data
     )
 
     function(add_icudata_resource_target target)
         add_custom_target(icudata-${target} ALL
-            COMMAND mkdir -p ${CMAKE_BINARY_DIR}/icudt63l/${target}
-            COMMAND ${ICU_GENRB_EXECUTABLE} -k -i ${CMAKE_BINARY_DIR}/icudt63l -s generated/${target} -d ${CMAKE_BINARY_DIR}/icudt63l/${target} res_index.txt
-            COMMAND test -f ${target}/pool.res && ${ICU_ICUPKG_EXECUTABLE} -tl ${target}/pool.res ${CMAKE_BINARY_DIR}/icudt63l/${target}/pool.res || true
+            COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/icudt63l/${target}
+            COMMAND ${ICU_GENRB_EXECUTABLE} -k -i ${CMAKE_CURRENT_BINARY_DIR}/icudt63l -s generated/${target} -d ${CMAKE_CURRENT_BINARY_DIR}/icudt63l/${target} res_index.txt
+            COMMAND test -f ${target}/pool.res && ${ICU_ICUPKG_EXECUTABLE} -tl ${target}/pool.res ${CMAKE_CURRENT_BINARY_DIR}/icudt63l/${target}/pool.res || true
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/data
         )
     endfunction()
@@ -504,7 +492,7 @@ if (ICU_PKGDATA_EXECUTABLE)
     function(add_icudata_resource_files target)
         foreach(file IN LISTS ${target}_files)
             add_custom_command(TARGET icudata-${target} PRE_BUILD
-                COMMAND ${ICU_GENRB_EXECUTABLE} --usePoolBundle -k -i ${CMAKE_BINARY_DIR}/icudt63l -s ${target} -d ${CMAKE_BINARY_DIR}/icudt63l/${target} ${file}
+                COMMAND ${ICU_GENRB_EXECUTABLE} --usePoolBundle -k -i ${CMAKE_CURRENT_BINARY_DIR}/icudt63l -s ${target} -d ${CMAKE_CURRENT_BINARY_DIR}/icudt63l/${target} ${file}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/data
             )
         endforeach()
@@ -555,43 +543,53 @@ if (ICU_PKGDATA_EXECUTABLE)
     add_icudata_resource_files(curr)
 
     add_custom_target(icudata-confusables ALL
-        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/icudt63l
-        COMMAND ${ICU_GENCFU_EXECUTABLE} -c -i ${CMAKE_BINARY_DIR}/icudt63l -r unidata/confusables.txt -w unidata/confusablesWholeScript.txt -o ${CMAKE_BINARY_DIR}/icudt63l/confusables.cfu
+        COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/icudt63l
+        COMMAND ${ICU_GENCFU_EXECUTABLE} -c -i ${CMAKE_CURRENT_BINARY_DIR}/icudt63l -r unidata/confusables.txt -w unidata/confusablesWholeScript.txt -o ${CMAKE_CURRENT_BINARY_DIR}/icudt63l/confusables.cfu
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/data
     )
 
     add_custom_target(icudata-lst ALL
-        COMMAND rm -rf ${CMAKE_BINARY_DIR}/icudata.lst
-        COMMAND find -not -type d -printf '%P\\n' > ${CMAKE_BINARY_DIR}/icudata.lst
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/icudt63l
+        COMMAND rm -rf ${CMAKE_CURRENT_BINARY_DIR}/icudata.lst
+        COMMAND find -not -type d -printf '%P\\n' > ${CMAKE_CURRENT_BINARY_DIR}/icudata.lst
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/icudt63l
         DEPENDS icudata-misc icudata-lang icudata-region icudata-zone icudata-coll icudata-brkitr icudata-rbnf icudata-unit icudata-locales icudata-curr icudata-confusables
     )
 
     add_custom_target(icudata-pkgdata ALL
-        COMMAND ${ICU_PKGDATA_EXECUTABLE} -q -c -s ${CMAKE_BINARY_DIR}/icudt63l -d ${CMAKE_BINARY_DIR} -e icudt63  -T ${CMAKE_BINARY_DIR} -p icudt63l -m static -r 63.1 -L icudata ${CMAKE_BINARY_DIR}/icudata.lst
+        COMMAND ${ICU_PKGDATA_EXECUTABLE} -q -c -s ${CMAKE_CURRENT_BINARY_DIR}/icudt63l -d ${CMAKE_CURRENT_BINARY_DIR} -e icudt63  -T ${CMAKE_CURRENT_BINARY_DIR} -p icudt63l -m static -r 63.1 -L icudata ${CMAKE_CURRENT_BINARY_DIR}/icudata.lst
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/data
         DEPENDS icudata-lst
     )
 
-    add_library(icudata STATIC IMPORTED)
+    add_library(icudata STATIC IMPORTED GLOBAL)
     set_target_properties(icudata PROPERTIES
-        IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/libicudata.a
+        IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/libicudata.a
     )
     add_dependencies(icudata icudata-pkgdata)
 
-    target_link_libraries(icu INTERFACE icudata)
-
 else()
-    add_library(icustubdata STATIC
+    add_library(icudata STATIC
         ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/stubdata/stubdata.cpp
     )
 
-    target_include_directories(icustubdata PRIVATE
+    target_include_directories(icudata PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/common
     )
 
-    target_compile_definitions(icustubdata PRIVATE
+    target_compile_definitions(icudata PRIVATE
         ${ICU_COMPILE_DEFINITIONS}
     )
-    target_link_libraries(icu INTERFACE icustubdata)
 endif()
+
+add_library(icu INTERFACE)
+
+target_include_directories(icu SYSTEM INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/common
+    ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/i18n
+)
+
+target_link_libraries(icu INTERFACE
+    icui18n
+    icuuc
+    icudata
+)
