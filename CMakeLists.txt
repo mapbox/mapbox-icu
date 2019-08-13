@@ -462,18 +462,6 @@ target_include_directories(icuuc PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/i18n
 )
 
-add_library(icu INTERFACE)
-
-target_include_directories(icu SYSTEM INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/common
-    ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/i18n
-)
-
-target_link_libraries(icu INTERFACE
-    icui18n
-    icuuc
-)
-
 find_package(ICU 60.2)
 if (ICU_PKGDATA_EXECUTABLE)
     add_custom_target(icudata-misc ALL
@@ -573,25 +561,35 @@ if (ICU_PKGDATA_EXECUTABLE)
         DEPENDS icudata-lst
     )
 
-    add_library(icudata STATIC IMPORTED)
+    add_library(icudata STATIC IMPORTED GLOBAL)
     set_target_properties(icudata PROPERTIES
         IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/libicudata.a
     )
     add_dependencies(icudata icudata-pkgdata)
 
-    target_link_libraries(icu INTERFACE icudata)
-
 else()
-    add_library(icustubdata STATIC
+    add_library(icudata STATIC
         ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/stubdata/stubdata.cpp
     )
 
-    target_include_directories(icustubdata PRIVATE
+    target_include_directories(icudata PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/common
     )
 
-    target_compile_definitions(icustubdata PRIVATE
+    target_compile_definitions(icudata PRIVATE
         ${ICU_COMPILE_DEFINITIONS}
     )
-    target_link_libraries(icu INTERFACE icustubdata)
 endif()
+
+add_library(icu INTERFACE)
+
+target_include_directories(icu SYSTEM INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/common
+    ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/i18n
+)
+
+target_link_libraries(icu INTERFACE
+    icui18n
+    icuuc
+    icudata
+)
