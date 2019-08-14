@@ -475,6 +475,7 @@ target_include_directories(icuuc PRIVATE
 find_package(ICU 60.2)
 if (ICU_PKGDATA_EXECUTABLE)
     add_custom_target(icudata-misc ALL
+        COMMAND rm -rf ${CMAKE_CURRENT_BINARY_DIR}/icudt63l
         COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/icudt63l
         COMMAND ${ICU_ICUPKG_EXECUTABLE} -tl in/unames.icu ${CMAKE_CURRENT_BINARY_DIR}/icudt63l/unames.icu
         COMMAND ${ICU_GENCNVAL_EXECUTABLE} -d ${CMAKE_CURRENT_BINARY_DIR}/icudt63l mappings/convrtrs.txt
@@ -546,11 +547,22 @@ if (ICU_PKGDATA_EXECUTABLE)
     add_icudata_resource_target(unit)
     add_icudata_resource_files(unit)
 
-    add_icudata_resource_target(locales)
-    add_icudata_resource_files(locales)
-
     add_icudata_resource_target(curr)
     add_icudata_resource_files(curr)
+
+    add_custom_target(icudata-locales ALL
+        COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/icudt63l
+        COMMAND ${ICU_GENRB_EXECUTABLE} -k -i ${CMAKE_CURRENT_BINARY_DIR}/icudt63l -s generated -d ${CMAKE_CURRENT_BINARY_DIR}/icudt63l res_index.txt
+        COMMAND test -f locales/pool.res && ${ICU_ICUPKG_EXECUTABLE} -tl locales/pool.res ${CMAKE_CURRENT_BINARY_DIR}/icudt63l/pool.res || true
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/data
+    )
+
+    foreach(file IN LISTS locales_files)
+        add_custom_command(TARGET icudata-locales PRE_BUILD
+            COMMAND ${ICU_GENRB_EXECUTABLE} --usePoolBundle -k -i ${CMAKE_CURRENT_BINARY_DIR}/icudt63l -s locales -d ${CMAKE_CURRENT_BINARY_DIR}/icudt63l ${file}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/data
+        )
+    endforeach()
 
     add_custom_target(icudata-confusables ALL
         COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/icudt63l
