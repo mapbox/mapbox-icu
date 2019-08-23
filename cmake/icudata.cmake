@@ -98,21 +98,42 @@ if (ICU_PKGDATA_EXECUTABLE)
     generate_icudata_resource_bundle(curr ${_ICUDATA_BINARY_DIR}/curr)
     generate_icudata_resource_bundle(unit ${_ICUDATA_BINARY_DIR}/unit)
 
-    add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/icudata.lst
-        COMMAND find -not -type d -printf '%P\\n' > ${CMAKE_CURRENT_BINARY_DIR}/icudata.lst
-        WORKING_DIRECTORY ${_ICUDATA_BINARY_DIR}
-        DEPENDS ${_ICUDATA_BINARY_DIR}/pool.res
-        DEPENDS ${_ICUDATA_BINARY_DIR}/res_index.res
-        DEPENDS ${resource_bundle_output_files}
-    )
+    if (APPLE)
+        add_custom_command(
+            OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/icudata.lst
+            COMMAND find . -not -type d -print | awk "{print substr($1,3); }" > ${CMAKE_CURRENT_BINARY_DIR}/icudata.lst
+            WORKING_DIRECTORY ${_ICUDATA_BINARY_DIR}
+            VERBATIM
+            DEPENDS ${_ICUDATA_BINARY_DIR}/pool.res
+            DEPENDS ${_ICUDATA_BINARY_DIR}/res_index.res
+            DEPENDS ${resource_bundle_output_files}
+        )
 
-    add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/libicudata.a
-        COMMAND ${ICU_PKGDATA_EXECUTABLE} -q -c -s ${_ICUDATA_BINARY_DIR} -d ${CMAKE_CURRENT_BINARY_DIR} -e icudt63  -T ${CMAKE_CURRENT_BINARY_DIR} -p icudt63l -m static -r 63.1 -L icudata ${CMAKE_CURRENT_BINARY_DIR}/icudata.lst
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/data
-        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/icudata.lst
-    )
+        add_custom_command(
+                OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/libicudata.a
+                COMMAND ${ICU_PKGDATA_EXECUTABLE} -q -c -s ${_ICUDATA_BINARY_DIR} -d ${CMAKE_CURRENT_BINARY_DIR} -O ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/data/pkgdata.osx.inc -e icudt63  -T ${CMAKE_CURRENT_BINARY_DIR} -p icudt63l -m static -r 63.1 -L icudata ${CMAKE_CURRENT_BINARY_DIR}/icudata.lst
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/data
+                DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/icudata.lst
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/data/pkgdata.osx.inc
+        )
+    else()
+        add_custom_command(
+            OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/icudata.lst
+            COMMAND find -not -type d -printf '%P\\n' > ${CMAKE_CURRENT_BINARY_DIR}/icudata.lst
+            WORKING_DIRECTORY ${_ICUDATA_BINARY_DIR}
+            DEPENDS ${_ICUDATA_BINARY_DIR}/pool.res
+            DEPENDS ${_ICUDATA_BINARY_DIR}/res_index.res
+            DEPENDS ${resource_bundle_output_files}
+        )
+
+        add_custom_command(
+                OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/libicudata.a
+                COMMAND ${ICU_PKGDATA_EXECUTABLE} -q -c -s ${_ICUDATA_BINARY_DIR} -d ${CMAKE_CURRENT_BINARY_DIR} -e icudt63  -T ${CMAKE_CURRENT_BINARY_DIR} -p icudt63l -m static -r 63.1 -L icudata ${CMAKE_CURRENT_BINARY_DIR}/icudata.lst
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/data
+                DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/icudata.lst
+                DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/pkgdata.inc
+        )
+    endif()
 
     add_custom_target(icudata-pkgdata ALL
         DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/libicudata.a
