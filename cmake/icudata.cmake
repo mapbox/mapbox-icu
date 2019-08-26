@@ -131,7 +131,6 @@ if (ICU_PKGDATA_EXECUTABLE)
                 COMMAND ${ICU_PKGDATA_EXECUTABLE} -q -c -s ${_ICUDATA_BINARY_DIR} -d ${CMAKE_CURRENT_BINARY_DIR} -e icudt63  -T ${CMAKE_CURRENT_BINARY_DIR} -p icudt63l -m static -r 63.1 -L icudata ${CMAKE_CURRENT_BINARY_DIR}/icudata.lst
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/icu4c/source/data
                 DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/icudata.lst
-                DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/pkgdata.inc
         )
     endif()
 
