@@ -1,5 +1,5 @@
 find_package(ICU QUIET)
-if (ICU_PKGDATA_EXECUTABLE)
+if (ICU_PKGDATA_EXECUTABLE AND 0)
     set(_ICUDATA_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/icudt63l)
 
     add_custom_command(
