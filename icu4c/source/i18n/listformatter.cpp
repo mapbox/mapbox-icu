@@ -482,7 +482,7 @@ UnicodeString& ListFormatter::format_(
     }
     if (handler != nullptr) {
         // If there are already some data in appendTo, we need to adjust the index
-        // by shifting that lenght while insert into handler.
+        // by shifting that length while insert into handler.
         int32_t shift = appendTo.length() + prefixLength;
         // Output the ULISTFMT_ELEMENT_FIELD in the order of the input elements
         for (int32_t i = 0; i < nItems; ++i) {
